@@ -6,6 +6,7 @@ Use [fzf](https://github.com/junegunn/fzf) to open most recently used files in [
 
 In vis:
 - `:fzfmru`
+- `:fzfmru-last-used`
 
 ## Configuration
 
@@ -18,10 +19,10 @@ plugin_vis_mru = require('plugins/fzf-mru')
 plugin_vis_mru.fzfmru_path = "fzf"
 
 -- Arguments passed to fzf (default: "")
-plugin_vis_mru.fzfmru_args = "--delimiter / --nth -1" -- Search only by file names
+plugin_vis_mru.fzfmru_args = "--delimiter / --nth -1 --height=40%" -- Search only by file names
 
 -- File path to file history (default: "$HOME/.mru") 
-plugin_vis_mru.fzfmru_filepath = "/Users/Username/.vismru"
+plugin_vis_mru.fzfmru_filepath = os.getenv("HOME") .. "/.config/vis/mru.txt"
 
 -- The number of most recently used files kept in history (default: 20)
 plugin_vis_mru.fzfmru_history = 10
@@ -29,6 +30,7 @@ plugin_vis_mru.fzfmru_history = 10
 -- Mapping configuration example
 vis.events.subscribe(vis.events.INIT, function()
 	vis:command('map! normal <Space>b :fzfmru<Enter>')
+	vis:command('map! normal <Tab> :fzfmru-last-used<Enter>')
 end)
 ```
 
