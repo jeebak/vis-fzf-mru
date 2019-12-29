@@ -68,4 +68,40 @@ vis:command_register("fzfmru", function(argv, force, win, selection, range)
     return true;
 end)
 
+vis:command_register("fzfmru-last-used", function()
+    local command = string.format(
+        "head -%s %s | tail -1",
+        vis.win.file.name == nil and '1' or '2',
+        module.fzfmru_filepath
+    )
+
+    local file = io.popen(command)
+    local output = file:read()
+    local success, msg, status = file:close()
+
+    if status == 0 then
+        vis:command(string.format("e '%s'", output))
+    else
+        vis:info(
+            string.format(
+                "fzfmru-last-used: Command %s exited with return value %i",
+                command, status
+            )
+        )
+    end
+
+    if vis.win.file.modified == true then
+        vis:info(
+            string.format(
+                "File: %s has been modified! Save changes and try again.",
+                string.gsub(vis.win.file.name, "(.*/)(.*)", "%2")
+            )
+        )
+    else
+        vis:feedkeys("<vis-redraw>")
+    end
+
+    return true;
+end)
+
 return module
