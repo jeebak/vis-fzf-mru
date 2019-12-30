@@ -45,7 +45,17 @@ end
 vis.events.subscribe(vis.events.WIN_OPEN, write_mru)
 
 vis:command_register("fzfmru", function(argv, force, win, selection, range)
-    local command = "cat " .. module.fzfmru_filepath .. " | " .. module.fzfmru_path .. " " .. module.fzfmru_args .. " " .. table.concat(argv, " ")
+    local command = string.gsub([[
+            cat $fzfmru_filepath |
+            $fzfmru_path $fzfmru_args $args
+        ]],
+        '%$([%w_]+)', {
+            fzfmru_filepath=module.fzfmru_filepath,
+            fzfmru_path=module.fzfmru_path,
+            fzfmru_args=module.fzfmru_args,
+            args=table.concat(argv, " ")
+        }
+    )
 
     local file = io.popen(command)
     local output = file:read()
@@ -54,19 +64,39 @@ vis:command_register("fzfmru", function(argv, force, win, selection, range)
     if status == 0 then
         vis:command(string.format("e '%s'", output))
     elseif status == 1 then
-        vis:info(string.format("fzf-open: No match. Command %s exited with return value %i." , command, status))
+        vis:info(
+            string.format(
+                "fzf-open: No match. Command %s exited with return value %i.",
+                command, status
+            )
+        )
     elseif status == 2 then
-        vis:info(string.format("fzf-open: Error. Command %s exited with return value %i." , command, status))
+        vis:info(
+            string.format(
+                "fzf-open: Error. Command %s exited with return value %i.",
+                command, status
+            )
+        )
     elseif status == 130 then
-        vis:info(string.format("fzf-open: Interrupted. Command %s exited with return value %i" , command, status))
+        vis:info(
+            string.format(
+                "fzf-open: Interrupted. Command %s exited with return value %i",
+                command, status
+            )
+        )
     else
-        vis:info(string.format("fzf-open: Unknown exit status %i. command %s exited with return value %i" , status, command, status, status))
+        vis:info(
+            string.format(
+                "fzf-open: Unknown exit status %i. command %s exited with return value %i",
+                status, command, status
+            )
+        )
     end
 
     vis:feedkeys("<vis-redraw>")
 
     return true;
-end)
+end, "Select most recently used file with fzf")
 
 vis:command_register("fzfmru-last-used", function()
     local mru = read_mru()
