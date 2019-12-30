@@ -42,13 +42,32 @@ function write_mru(win)
     f:close()
 end
 
+function delete_from_mru(file_to_delete)
+    local mru = read_mru()
+
+    -- check if mru data exists
+    if mru == nil then mru = {} end
+
+    local f = io.open(module.fzfmru_filepath, 'w+')
+    if f == nil then return end
+
+    for i,k in ipairs(mru) do
+        if file_to_delete ~= k then
+            f:write(string.format('%s\n', k))
+        end
+    end
+
+    f:close()
+    vis:info(string.format("Deleted from MRU list: %s", file_to_delete))
+end
+
 vis.events.subscribe(vis.events.WIN_OPEN, write_mru)
 
 vis:command_register("fzfmru", function(argv, force, win, selection, range)
     local command = string.gsub([[
             $fzfmru_path \
-                --header="Enter:edit,^s:split,^v:vsplit" \
-                --expect="ctrl-s,ctrl-v" \
+                --header="Enter:edit,^d:delete,^s:split,^v:vsplit" \
+                --expect="ctrl-d,ctrl-s,ctrl-v" \
                 $fzfmru_args $args < "$fzfmru_filepath"
         ]],
         '%$([%w_]+)', {
@@ -68,11 +87,16 @@ vis:command_register("fzfmru", function(argv, force, win, selection, range)
 
     if status == 0 then
         local action = 'e'
-        if     output[1] == 'ctrl-s' then action = 'split'
+        if     output[1] == 'ctrl-d' then action = 'delete'
+        elseif output[1] == 'ctrl-s' then action = 'split'
         elseif output[1] == 'ctrl-v' then action = 'vsplit'
         end
 
-        vis:command(string.format("%s '%s'", action, output[2]))
+        if action == 'delete' then
+            delete_from_mru(output[2])
+        else
+            vis:command(string.format("%s '%s'", action, output[2]))
+        end
     elseif status == 1 then
         vis:info(
             string.format(
