@@ -64,17 +64,20 @@ end
 vis.events.subscribe(vis.events.WIN_OPEN, write_mru)
 
 vis:command_register("fzfmru", function(argv, force, win, selection, range)
+    local cwd = io.popen('pwd'):read()
     local command = string.gsub([[
+            sed 's|^$cwd/||' < "$fzfmru_filepath" |
             $fzfmru_path \
                 --header="Enter:edit,^d:delete,^s:split,^v:vsplit" \
                 --expect="ctrl-d,ctrl-s,ctrl-v" \
-                $fzfmru_args $args < "$fzfmru_filepath"
+                $fzfmru_args $args
         ]],
         '%$([%w_]+)', {
+            cwd=cwd,
+            fzfmru_filepath=module.fzfmru_filepath,
             fzfmru_path=module.fzfmru_path,
             fzfmru_args=module.fzfmru_args,
-            args=table.concat(argv, " "),
-            fzfmru_filepath=module.fzfmru_filepath
+            args=table.concat(argv, " ")
         }
     )
 
