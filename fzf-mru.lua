@@ -79,7 +79,7 @@ vis:command_register("fzfmru-last-used", function()
                     "File: %s has been modified! Save changes and try again.",
                     string.gsub(
                         vis.win.file.name and vis.win.file.name or "[No Name]",
-                         "(.*/)(.*)", "%2"
+                        "(.*/)(.*)", "%2"
                     )
                 )
             )
@@ -90,6 +90,6 @@ vis:command_register("fzfmru-last-used", function()
     end
 
     return true;
-end)
+end, "Open last used file")
 
 return module
