@@ -77,7 +77,10 @@ vis:command_register("fzfmru-last-used", function()
             vis:info(
                 string.format(
                     "File: %s has been modified! Save changes and try again.",
-                    string.gsub(vis.win.file.name, "(.*/)(.*)", "%2")
+                    string.gsub(
+                        vis.win.file.name and vis.win.file.name or "[No Name]",
+                         "(.*/)(.*)", "%2"
+                    )
                 )
             )
         else
