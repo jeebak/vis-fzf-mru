@@ -46,23 +46,33 @@ vis.events.subscribe(vis.events.WIN_OPEN, write_mru)
 
 vis:command_register("fzfmru", function(argv, force, win, selection, range)
     local command = string.gsub([[
-            cat $fzfmru_filepath |
-            $fzfmru_path $fzfmru_args $args
+            $fzfmru_path \
+                --header="Enter:edit,^s:split,^v:vsplit" \
+                --expect="ctrl-s,ctrl-v" \
+                $fzfmru_args $args < "$fzfmru_filepath"
         ]],
         '%$([%w_]+)', {
-            fzfmru_filepath=module.fzfmru_filepath,
             fzfmru_path=module.fzfmru_path,
             fzfmru_args=module.fzfmru_args,
-            args=table.concat(argv, " ")
+            args=table.concat(argv, " "),
+            fzfmru_filepath=module.fzfmru_filepath
         }
     )
 
     local file = io.popen(command)
-    local output = file:read()
+    local output = {}
+    for line in file:lines() do
+        table.insert(output, line)
+    end
     local success, msg, status = file:close()
 
     if status == 0 then
-        vis:command(string.format("e '%s'", output))
+        local action = 'e'
+        if     output[1] == 'ctrl-s' then action = 'split'
+        elseif output[1] == 'ctrl-v' then action = 'vsplit'
+        end
+
+        vis:command(string.format("%s '%s'", action, output[2]))
     elseif status == 1 then
         vis:info(
             string.format(
