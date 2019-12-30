@@ -43,10 +43,15 @@ function write_mru(win)
 end
 
 function delete_from_mru(file_to_delete)
+    local cwd = io.popen('pwd'):read()
     local mru = read_mru()
 
     -- check if mru data exists
     if mru == nil then mru = {} end
+
+    if string.find(file_to_delete, '/') ~= 1 then
+        file_to_delete = string.format('%s/%s', cwd, file_to_delete)
+    end
 
     local f = io.open(module.fzfmru_filepath, 'w+')
     if f == nil then return end
