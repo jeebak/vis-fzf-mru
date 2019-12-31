@@ -3,6 +3,7 @@ module.fzfmru_filepath = os.getenv('HOME') .. '/.mru'
 module.fzfmru_path = "fzf"
 module.fzfmru_args = ""
 module.fzfmru_history = 20
+module.fzfmru_start_with_last_file = false
 
 function read_mru()
     local mru = {}
@@ -65,6 +66,13 @@ function delete_from_mru(file_to_delete)
     f:close()
     vis:info(string.format("Deleted from MRU list: %s", file_to_delete))
 end
+
+vis.events.subscribe(vis.events.START, function()
+    -- TODO: explore logic to favor files under $PWD
+    if module.fzfmru_start_with_last_file and vis.win.file.name == nil then
+        vis:command("fzfmru-last-used")
+    end
+end)
 
 vis.events.subscribe(vis.events.WIN_OPEN, write_mru)
 

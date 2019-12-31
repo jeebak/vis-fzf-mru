@@ -35,6 +35,9 @@ plugin_vis_mru.fzfmru_filepath = os.getenv("HOME") .. "/.config/vis/mru.txt"
 -- The number of most recently used files kept in history (default: 20)
 plugin_vis_mru.fzfmru_history = 10
 
+-- Start w/ last file if "vis" was started w/out a file name arg
+plugin_vis_mru.fzfmru_start_with_last_file = true
+
 -- Mapping configuration example
 vis.events.subscribe(vis.events.INIT, function()
 	vis:command('map! normal <Space>h :fzfmru<Enter>')
