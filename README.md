@@ -40,8 +40,8 @@ plugin_vis_mru.fzfmru_start_with_last_file = true
 
 -- Mapping configuration example
 vis.events.subscribe(vis.events.INIT, function()
-	vis:command('map! normal <Space>h :fzfmru<Enter>')
-	vis:command('map! normal <Tab> :fzfmru-last-used<Enter>')
+    vis:command('map! normal <Space>h :fzfmru<Enter>')
+    vis:command('map! normal <Tab> :fzfmru-last-used<Enter>')
 end)
 ```
 
@@ -64,8 +64,7 @@ my_fzf_args = string.gsub([[
         rougify {} ||
         cat {}
     ) 2> /dev/null | head -1000"
-]],
-'%$([%w_]+)', {
+]], '%$([%w_]+)', {
     my_fzf_key_bindings=table.concat({
         "alt-j:preview-down",
         "alt-k:preview-up",
